@@ -52,6 +52,16 @@ namespace Xavalon.XamlStyler.MarkupExtensions.Parser
             this.MarkTransient(arguments, argument);
         }
 
+        public override void BuildAst(LanguageData language, ParseTree parseTree)
+        {
+            // This grammar is consumed as a ParseTree by MarkupExtension.Create. It does not
+            // define Irony AST node types, so never enter the reflective AST factory.
+            if ((this.LanguageFlags & LanguageFlags.CreateAst) != 0)
+            {
+                throw new System.NotSupportedException("Markup extension parsing uses parse trees, not Irony AST nodes.");
+            }
+        }
+
         private BnfTerm ToTransientTerm(string text)
         {
             var term = ToTerm(text);

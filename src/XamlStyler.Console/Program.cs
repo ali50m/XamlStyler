@@ -10,6 +10,16 @@ namespace Xavalon.XamlStyler.Console
     {
         public static int Main(string[] args)
         {
+#if NATIVE_AOT
+            if (!CommandLineOptions.TryParse(args, out var options, out var message))
+            {
+                System.Console.Error.WriteLine(message);
+                return 1;
+            }
+            Logger logger = new Logger(options.WriteToStdout ? System.Console.Error : System.Console.Out, options.LogLevel);
+            if (!CheckOptions(options, logger, out var processType)) return 1;
+            new XamlStylerConsole(options, logger).Process(processType);
+#else
             var writer = new StringWriter();
             var parser = new CommandLine.Parser(_ => _.HelpWriter = writer);
             ParserResult<CommandLineOptions> result = parser.ParseArguments<CommandLineOptions>(args);
@@ -33,6 +43,7 @@ namespace Xavalon.XamlStyler.Console
                 xamlStylerConsole.Process(processType);
             });
 
+#endif
             return 0;
         }
 

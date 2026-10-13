@@ -1,0 +1,9 @@
+<linker>
+  <assembly fullname="Irony">
+    <type fullname="Irony.Ast.AstBuilder">
+      <!-- The formatter consumes ParseTree nodes, never Irony AST nodes. Disable the
+           unused reflective AST factory in the standalone AOT binary; fail if reached. -->
+      <method signature="System.Func`1&lt;System.Object&gt; CompileDefaultNodeCreator(System.Type)" body="remove" />
+    </type>
+  </assembly>
+</linker>

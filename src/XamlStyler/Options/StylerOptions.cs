@@ -362,9 +362,13 @@ namespace Xavalon.XamlStyler.Options
         /// <returns>A clone from the current instance.</returns>
         public IStylerOptions Clone()
         {
+#if NET10_0_OR_GREATER
+            return StylerOptionsData.FromOptions(this).ToOptions();
+#else
             string jsonStylerOptions = JsonConvert.SerializeObject(this);
 
             return JsonConvert.DeserializeObject<StylerOptions>(jsonStylerOptions);
+#endif
         }
 
         private void InitializeProperties()
@@ -389,6 +393,34 @@ namespace Xavalon.XamlStyler.Options
 
         private bool LoadConfiguration(string config)
         {
+#if NET10_0_OR_GREATER
+            try
+            {
+                var data = System.Text.Json.JsonSerializer.Deserialize(config, StylerJsonContext.Default.StylerOptionsData);
+                if (data == null)
+                {
+                    this.LoadFallbackConfiguration();
+                }
+                else
+                {
+                    this.CopyConfiguration(data.ToOptions());
+                    this.SearchToDriveRoot = false;
+                    this.resetToDefault = false;
+                    if (this.IndentSize > 0)
+                        this.UseVisualStudioIndentSize = false;
+                    else
+                        this.IndentSize = FallbackIndentSize;
+                    if (this.IndentWithTabs == true)
+                        this.UseVisualStudioIndentWithTabs = false;
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                this.LoadFallbackConfiguration();
+                return false;
+            }
+#else
             try
             {
                 StylerOptions configOptions = JsonConvert.DeserializeObject<StylerOptions>(config);
@@ -472,10 +504,17 @@ namespace Xavalon.XamlStyler.Options
             }
 
             return true;
+#endif
         }
 
         private void LoadFallbackConfiguration()
         {
+#if NET10_0_OR_GREATER
+            this.CopyConfiguration(new StylerOptionsData().ToOptions());
+            this.SearchToDriveRoot = true;
+            this.resetToDefault = false;
+            this.configPath = String.Empty;
+#else
             // Initialize all properties with "DefaultValueAttrbute" to their default value
             foreach (PropertyDescriptor propertyDescriptor in TypeDescriptor.GetProperties(this))
             {
@@ -485,6 +524,54 @@ namespace Xavalon.XamlStyler.Options
                     propertyDescriptor.SetValue(this, attribute.Value);
                 }
             }
+#endif
         }
+#if NET10_0_OR_GREATER
+        public string ToJson()
+        {
+            return System.Text.Json.JsonSerializer.Serialize(StylerOptionsData.FromOptions(this), StylerJsonContext.Default.StylerOptionsData);
+        }
+
+        public string RuleGroupsToJson()
+        {
+            return System.Text.Json.JsonSerializer.Serialize(this.AttributeOrderingRuleGroups, StylerJsonContext.Default.StringArray);
+        }
+
+        private void CopyConfiguration(StylerOptions source)
+        {
+            this.IndentSize = source.IndentSize;
+            this.IndentWithTabs = source.IndentWithTabs;
+            this.AttributesTolerance = source.AttributesTolerance;
+            this.KeepFirstAttributeOnSameLine = source.KeepFirstAttributeOnSameLine;
+            this.MaxAttributeCharactersPerLine = source.MaxAttributeCharactersPerLine;
+            this.MaxAttributesPerLine = source.MaxAttributesPerLine;
+            this.NoNewLineElements = source.NoNewLineElements;
+            this.PutAttributeOrderRuleGroupsOnSeparateLines = source.PutAttributeOrderRuleGroupsOnSeparateLines;
+            this.AttributeIndentation = source.AttributeIndentation;
+            this.AttributeIndentationStyle = source.AttributeIndentationStyle;
+            this.RemoveDesignTimeReferences = source.RemoveDesignTimeReferences;
+            this.EnableAttributeReordering = source.EnableAttributeReordering;
+            this.AttributeOrderingRuleGroups = source.AttributeOrderingRuleGroups;
+            this.FirstLineAttributes = source.FirstLineAttributes;
+            this.OrderAttributesByName = source.OrderAttributesByName;
+            this.PutEndingBracketOnNewLine = source.PutEndingBracketOnNewLine;
+            this.RemoveEndingTagOfEmptyElement = source.RemoveEndingTagOfEmptyElement;
+            this.SpaceBeforeClosingSlash = source.SpaceBeforeClosingSlash;
+            this.RootElementLineBreakRule = source.RootElementLineBreakRule;
+            this.ReorderVSM = source.ReorderVSM;
+            this.ReorderGridChildren = source.ReorderGridChildren;
+            this.ReorderCanvasChildren = source.ReorderCanvasChildren;
+            this.ReorderSetters = source.ReorderSetters;
+            this.FormatMarkupExtension = source.FormatMarkupExtension;
+            this.NoNewLineMarkupExtensions = source.NoNewLineMarkupExtensions;
+            this.ThicknessStyle = source.ThicknessStyle;
+            this.ThicknessAttributes = source.ThicknessAttributes;
+            this.FormatOnSave = source.FormatOnSave;
+            this.SaveAndCloseOnFormat = source.SaveAndCloseOnFormat;
+            this.CommentSpaces = source.CommentSpaces;
+            this.IgnoreDesignTimeReferencePrefix = source.IgnoreDesignTimeReferencePrefix;
+            this.SuppressProcessing = source.SuppressProcessing;
+        }
+#endif
     }
 }

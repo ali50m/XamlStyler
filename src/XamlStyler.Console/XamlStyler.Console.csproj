@@ -22,6 +22,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(NativeAot)' == 'true'">
     <PublishAot>true</PublishAot>
+    <DefineConstants>$(DefineConstants);NATIVE_AOT</DefineConstants>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
     <OptimizationPreference>Size</OptimizationPreference>
     <DebugType>none</DebugType>
     <StripSymbols>true</StripSymbols>
@@ -29,11 +31,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup Condition="'$(NativeAot)' == 'true'">
-    <TrimmerRootAssembly Include="xstyler" />
-    <TrimmerRootAssembly Include="XamlStyler" />
-    <TrimmerRootAssembly Include="CommandLine" />
-    <TrimmerRootAssembly Include="Newtonsoft.Json" />
-    <TrimmerRootAssembly Include="Irony" />
+    <IlcArg Include="--substitution:$(MSBuildProjectDirectory)/AotSubstitutions.xml" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\bin\Debug\Console\</OutputPath>

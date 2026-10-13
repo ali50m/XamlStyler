@@ -47,7 +47,7 @@
 | NUnit3TestAdapter | 6.3.1 |
 | NuGet.CommandLine | 7.9.0 |
 
-配置仍使用 Newtonsoft.Json，没有迁移 System.Text.Json，也没有改变 Settings.XamlStyler 的配置格式。
+配置文件的字段和默认值保持兼容。.NET 10 路径使用 System.Text.Json 源生成契约，netstandard2.0 继续使用原有 Newtonsoft.Json 实现。
 
 ## 构建与测试
 
@@ -68,7 +68,7 @@ dotnet publish src/XamlStyler.Console/XamlStyler.Console.csproj `
   -p:NativeAot=true -o ./artifacts/aot/win-x64
 ```
 
-NativeAot 仅对 CLI 启用 PublishAot，同时使用 Size 优化、关闭调试符号、关闭 dotnet tool 打包，并保留原有依赖的反射元数据。不需要临时 props，不要直接把 PublishAot=true 作为全局参数传入。
+NativeAot 仅对 CLI 启用 PublishAot，同时使用 Size 优化、关闭调试符号、关闭 dotnet tool 打包。AOT 使用静态 CLI 参数解析，不再保留整个第三方程序集。不需要临时 props，不要直接把 PublishAot=true 作为全局参数传入。
 
 ## 验证结果
 
@@ -77,10 +77,22 @@ NativeAot 仅对 CLI 启用 PublishAot，同时使用 Size 优化、关闭调试
 - 使用现有 JSON 配置格式化真实语言资源文件三次，后两次完全一致，全部资源值不变，并与已安装的旧版格式化结果一致。
 - 本地安装生成的 .NET Tool 后可运行帮助命令。
 - 已生成并检查 markupfmt 1.7.0 VSIX，包内运行时为 net10.0；从安装包解压出的工具可独立运行，且未包含 artifacts。
-- Native AOT 仍有反射、裁剪相关分析警告。这些实测覆盖的场景通过，不代表全部配置组合都已验证。
+- Native AOT 警告修复后共 458 项测试通过，发布命令零警告；另外核对既有配置文件及 CLI 参数行为。
 
 测试文件枚举已改为 TestContext 的实际测试目录，并排除生成的 .actual 文件，使 Windows / Linux 使用相同路径逻辑，测试数量也不受前次输出影响。
 
 ## 发布顺序
 
 先提交并推送此底层仓库，再在外层插件仓库提交新的子模块引用。外层使用 .NET 10 SDK 构建工具，插件 1.7.0 要求安装 .NET 10 或更高运行时；独立 AOT EXE 自包含，无需安装该运行时。
+
+## Native AOT 警告修复
+
+.NET 10 使用独立的配置 DTO 和 STJ 源生成上下文，保留缺省值、注释、尾随逗号、字段大小写兼容、数字字符串和布尔字符串的读取行为。复制配置时直接复制值，并深复制数组，避免 JSON 克隆及 TypeDescriptor 反射。
+
+命令行使用静态类型分派的参数解析；托管版仍使用原 CommandLineParser。测试自动读取已有 Option 定义，对比参数、默认值、错误输入和集合行为，新增参数时若忘记同步静态解析器，测试会失败。AOT 的帮助文本布局与原工具不同，正常格式化参数保持兼容。
+
+JSON 调试日志改为使用显式配置契约输出完整配置，枚举输出为名称；这与旧 Newtonsoft.Json 日志的省略默认值方式不同，不改变输入配置文件或格式化输出。
+
+最后一个 Irony 警告来自未使用的 AstBuilder.CompileDefaultNodeCreator。格式化器消费 ParseTree 而非 Irony AST，语法类显式禁止启用 CreateAst；独立 AOT 构建通过 AotSubstitutions.xml 将该反射工厂替换为抛出异常。普通托管构建不应用此替换。此举关闭一个未使用的可选特性，不是用 NoWarn 屏蔽诊断。
+
+本地 artifacts 目录已加入底层仓库的 .gitignore，不提交生成的 EXE 或日志。

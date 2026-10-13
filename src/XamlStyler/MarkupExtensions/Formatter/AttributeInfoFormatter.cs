@@ -3,7 +3,6 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Xavalon.XamlStyler.Extensions;
 using Xavalon.XamlStyler.Model;
@@ -39,7 +38,7 @@ namespace Xavalon.XamlStyler.MarkupExtensions.Formatter
             {
                 throw new ArgumentException(
                     "AttributeInfo shall have a markup extension value.",
-                    MethodBase.GetCurrentMethod().GetParameters()[0].Name);
+                    nameof(attrInfo));
             }
 
             if (attrInfo.IsMarkupExtension)

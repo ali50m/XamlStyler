@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using Xavalon.XamlStyler.Options;
 
 namespace Xavalon.XamlStyler.Console
@@ -337,8 +336,8 @@ namespace Xavalon.XamlStyler.Console
         private IStylerOptions LoadConfiguration(string path)
         {
             var stylerOptions = new StylerOptions(path);
-            this.Log(JsonConvert.SerializeObject(stylerOptions), LogLevel.Insanity);
-            this.Log(JsonConvert.SerializeObject(stylerOptions.AttributeOrderingRuleGroups), LogLevel.Debug);
+            this.Log(stylerOptions.ToJson(), LogLevel.Insanity);
+            this.Log(stylerOptions.RuleGroupsToJson(), LogLevel.Debug);
             return stylerOptions;
         }
 

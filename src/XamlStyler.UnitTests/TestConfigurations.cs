@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System.IO;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Xavalon.XamlStyler.Options;
 
 namespace Xavalon.XamlStyler.UnitTests
@@ -67,7 +66,19 @@ namespace Xavalon.XamlStyler.UnitTests
             var actualOptions = JsonConvert.SerializeObject(stylerOptions);
             var expectedOptions = File.ReadAllText(Tests.GetConfiguration(expectedConfiguration));
 
-            Assert.That(Regex.Replace(actualOptions, @"\s+", ""), Is.EqualTo(Regex.Replace(expectedOptions, @"\s+", "")));
+            var actual = Newtonsoft.Json.Linq.JObject.Parse(actualOptions);
+            var expected = Newtonsoft.Json.Linq.JObject.Parse(expectedOptions);
+            // Default arrays compare by reference in Newtonsoft's omission logic. Verify their
+            // contents rather than coupling configuration tests to that serializer detail.
+            if (expected["AttributeOrderingRuleGroups"] == null && actual["AttributeOrderingRuleGroups"] != null)
+            {
+                using var stream = typeof(StylerOptions).Assembly.GetManifestResourceStream("Xavalon.XamlStyler.Options.DefaultSettings.json");
+                using var reader = new StreamReader(stream);
+                var defaults = Newtonsoft.Json.Linq.JObject.Parse(reader.ReadToEnd());
+                expected["AttributeOrderingRuleGroups"] = defaults["AttributeOrderingRuleGroups"];
+            }
+            Assert.That(Newtonsoft.Json.Linq.JToken.DeepEquals(actual, expected), Is.True,
+                $"Expected: {expected}\nActual: {actual}");
         }
 
         private static string GetConfiguration(string path)
