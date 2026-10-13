@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <IsFormatterProject Condition="'$(MSBuildProjectName)' == 'XamlStyler' Or '$(MSBuildProjectName)' == 'XamlStyler.Console' Or '$(MSBuildProjectName)' == 'XamlStyler.UnitTest'">true</IsFormatterProject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsFormatterProject)' == 'true'">
+    <FormatterTargetFramework>net10.0</FormatterTargetFramework>
+    <CompatibilityTargetFramework>netstandard2.0</CompatibilityTargetFramework>
+    <Version>3.1.0</Version>
+    <PackageVersion>$(Version)</PackageVersion>
+    <LangVersion>14.0</LangVersion>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>10.0</AnalysisLevel>
+    <Deterministic>true</Deterministic>
+    <Copyright>Copyright © Xavalon 2024</Copyright>
+    <Company>Xavalon</Company>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'XamlStyler'">
+    <TargetFrameworks>$(FormatterTargetFramework);$(CompatibilityTargetFramework)</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsFormatterProject)' == 'true' And '$(MSBuildProjectName)' != 'XamlStyler'">
+    <TargetFramework>$(FormatterTargetFramework)</TargetFramework>
+  </PropertyGroup>
+</Project>

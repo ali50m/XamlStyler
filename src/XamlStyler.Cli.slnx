@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="XamlStyler/XamlStyler.csproj" />
+  <Project Path="XamlStyler.Console/XamlStyler.Console.csproj" />
+  <Project Path="XamlStyler.UnitTests/XamlStyler.UnitTest.csproj" />
+</Solution>

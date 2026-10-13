@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 using NUnit.Framework;
 using Xavalon.XamlStyler.Services;
@@ -65,7 +66,8 @@ namespace Xavalon.XamlStyler.UnitTests
         {
             get
             {
-                foreach (var fileName in Directory.GetFiles(".\\TestFiles"))
+                foreach (var fileName in Directory.GetFiles(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestFiles"))
+                    .Where(path => Path.GetExtension(path) != ".actual"))
                 {
                     var originalContents = File.ReadAllText(fileName);
                     yield return new TestCaseData(fileName, originalContents);

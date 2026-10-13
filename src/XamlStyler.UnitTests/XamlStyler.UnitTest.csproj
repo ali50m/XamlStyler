@@ -1,12 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Xavalon.XamlStyler.UnitTests</RootNamespace>
-    <Copyright>Copyright © Xavalon 2024</Copyright>
-    <Company>Xavalon</Company>
     <Configurations>Debug;Release;Debug VS2019;Release VS2019</Configurations>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
@@ -26,18 +22,18 @@
     <OutputPath>..\bin\Release\UnitTest</OutputPath>
   </PropertyGroup>
 <ItemGroup>
-    <PackageReference Include="CompareNETObjects" Version="4.83.0">
+    <PackageReference Include="CompareNETObjects">
     </PackageReference>
-    <PackageReference Include="Irony" Version="1.5.3">
+    <PackageReference Include="Irony">
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Newtonsoft.Json">
     </PackageReference>
-    <PackageReference Include="NUnit" Version="4.3.2">
+    <PackageReference Include="NUnit">
     </PackageReference>
-    <PackageReference Include="NUnit.ConsoleRunner" Version="3.19.1">
+    <PackageReference Include="NUnit.ConsoleRunner">
     </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0">
+    <PackageReference Include="NUnit3TestAdapter">
     </PackageReference>
   </ItemGroup>
 <ItemGroup>

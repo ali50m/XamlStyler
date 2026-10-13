@@ -1,0 +1,17 @@
+<Project>
+  <!-- Modernize the formatter, CLI and tests; legacy IDE hosts keep their own package versions. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally Condition="'$(MSBuildProjectName)' == 'XamlStyler' Or '$(MSBuildProjectName)' == 'XamlStyler.Console' Or '$(MSBuildProjectName)' == 'XamlStyler.UnitTest'">true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
+    <PackageVersion Include="CommandLineParser" Version="2.9.1" />
+    <PackageVersion Include="CompareNETObjects" Version="4.84.0" />
+    <PackageVersion Include="Irony" Version="1.5.3" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="NUnit" Version="5.0.0" />
+    <PackageVersion Include="NUnit.ConsoleRunner" Version="3.22.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="6.3.1" />
+    <PackageVersion Include="NuGet.CommandLine" Version="7.9.0" />
+  </ItemGroup>
+</Project>
