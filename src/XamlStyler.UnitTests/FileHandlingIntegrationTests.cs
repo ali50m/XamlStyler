@@ -461,7 +461,7 @@ namespace Xavalon.XamlStyler.UnitTests
         }
 
         [Test]
-        public void TestWildCard()
+        public void TestWildcard()
         {
             var stylerOptions = new StylerOptions(
                 config: FileHandlingIntegrationTests.GetConfiguration(@"TestConfigurations/LegacyTestSettings.json"))
