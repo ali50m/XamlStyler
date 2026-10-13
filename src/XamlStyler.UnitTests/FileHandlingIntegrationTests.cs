@@ -87,6 +87,64 @@ namespace Xavalon.XamlStyler.UnitTests
         }
 
         [Test]
+        public void TestCommentWithPreservedWhitespace(
+            [Values("", " ", "\t", "\n", "\n    ", "\n\n    ", "\n\t")] string whitespace,
+            [Values("<!--  Section  -->", "<!--#region Section-->", "<!-- <Value /> -->")] string comment,
+            [Values(false, true)] bool inherited)
+        {
+            whitespace = whitespace.Replace("\n", Environment.NewLine);
+            string source = "<Resources xml:space=\"preserve\">"
+                + Environment.NewLine + "    "
+                + (inherited ? "<Group>" + Environment.NewLine + "        " : string.Empty)
+                + "<Value>  Hello  </Value>" + whitespace
+                + comment + whitespace + "<Value>  World  </Value>"
+                + Environment.NewLine
+                + (inherited ? "    </Group>" + Environment.NewLine : string.Empty)
+                + "</Resources>";
+            var stylerService = new StylerService(new StylerOptions(), new XamlLanguageOptions { IsFormatable = true });
+
+            string formatted = stylerService.StyleDocument(source);
+
+            Assert.That(formatted, Is.EqualTo(source), "Whitespace around comments and text must be preserved.");
+            string reformatted = stylerService.StyleDocument(formatted);
+            Assert.That(reformatted, Is.EqualTo(formatted));
+            Assert.That(stylerService.StyleDocument(reformatted), Is.EqualTo(reformatted));
+        }
+
+        [Test]
+        public void TestMultilineCommentWithPreservedWhitespace()
+        {
+            string source = "<Resources xml:space=\"preserve\">" + Environment.NewLine
+                + "    <Value>  Hello  </Value>" + Environment.NewLine + Environment.NewLine
+                + "    <!--" + Environment.NewLine
+                + "        Section" + Environment.NewLine
+                + "    -->" + Environment.NewLine
+                + "    <Value>  World  </Value>" + Environment.NewLine
+                + "</Resources>";
+            var stylerService = new StylerService(new StylerOptions(), new XamlLanguageOptions { IsFormatable = true });
+
+            string formatted = stylerService.StyleDocument(source);
+
+            Assert.That(formatted, Is.EqualTo(source));
+            Assert.That(stylerService.StyleDocument(formatted), Is.EqualTo(formatted));
+        }
+
+        [Test]
+        public void TestCommentWithDefaultWhitespaceOverride()
+        {
+            string source = "<Resources xml:space=\"preserve\">" + Environment.NewLine
+                + "    <Group xml:space=\"default\">"
+                + "<Value /><!-- Section --></Group>    <!--  Preserved  --></Resources>";
+            var stylerService = new StylerService(new StylerOptions(), new XamlLanguageOptions { IsFormatable = true });
+
+            string formatted = stylerService.StyleDocument(source);
+
+            Assert.That(formatted, Does.Contain("<Value />" + Environment.NewLine + "        <!--  Section  -->"));
+            Assert.That(formatted, Does.Contain("</Group>    <!--  Preserved  -->"));
+            Assert.That(stylerService.StyleDocument(formatted), Is.EqualTo(formatted));
+        }
+
+        [Test]
         public void TestCommentAtFirstLine()
         {
             FileHandlingIntegrationTests.DoTest(this.GetLegacyStylerOptions());

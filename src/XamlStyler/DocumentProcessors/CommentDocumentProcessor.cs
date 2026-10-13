@@ -29,14 +29,19 @@ namespace Xavalon.XamlStyler.DocumentProcessors
             string currentIndentString = this.indentService.GetIndentString(xmlReader.Depth);
             string content = xmlReader.Value;
 
-            if ((output.Length > 0) && !output.IsNewLine())
+            // Whitespace before the comment has already been preserved by the whitespace processor.
+            if (!elementProcessContext.Current.IsPreservingSpace)
             {
-                output.Append(Environment.NewLine);
+                if ((output.Length > 0) && !output.IsNewLine())
+                {
+                    output.Append(Environment.NewLine);
+                }
+
+                output.Append(currentIndentString);
             }
 
             if (content.Contains("<") && content.Contains(">"))
             {
-                output.Append(currentIndentString);
                 output.Append("<!--");
 
                 if (content.Contains("\n"))
@@ -57,11 +62,11 @@ namespace Xavalon.XamlStyler.DocumentProcessors
             }
             else if (content.Contains("#region") || content.Contains("#endregion"))
             {
-                output.Append(currentIndentString).Append("<!--").Append(content.Trim()).Append("-->");
+                output.Append("<!--").Append(content.Trim()).Append("-->");
             }
             else if (content.Contains("\n"))
             {
-                output.Append(currentIndentString).Append("<!--");
+                output.Append("<!--");
 
                 var contentIndentString = this.indentService.GetIndentString(xmlReader.Depth + 1);
                 foreach (var line in content.Trim().GetLines())
@@ -74,7 +79,6 @@ namespace Xavalon.XamlStyler.DocumentProcessors
             else
             {
                 output
-                    .Append(currentIndentString)
                     .Append("<!--")
                     .Append(' ', this.options.CommentSpaces)
                     .Append(content.Trim())
